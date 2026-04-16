@@ -1,4 +1,4 @@
-﻿Windows Registry Editor Version 5.00
+Windows Registry Editor Version 5.00
 
 
 
@@ -12,7 +12,7 @@
 
 [HKEY_CLASSES_ROOT\*\shell\NormalizeNFC\command]
 
-@="pythonw.exe \"C:\\Scripts\\normalize_nfc.py\" \"%1\""
+@="\"C:\\Scripts\\nfc_renamer.exe\" \"%1\""
 
 
 
@@ -26,5 +26,5 @@
 
 [HKEY_CLASSES_ROOT\Directory\shell\NormalizeNFC\command]
 
-@="pythonw.exe \"C:\\Scripts\\normalize_nfc.py\" \"%1\""
+@="\"C:\\Scripts\\nfc_renamer.exe\" \"%1\""
 

@@ -17,28 +17,29 @@ exit /b 1
 
 :have_admin
 
-REM 우클릭 명령은 PATH의 pythonw.exe를 사용합니다.
-pythonw --version >nul 2>&1
-if not errorlevel 1 goto :have_python
+if not exist "%~dp0nfc_renamer.exe" (
+    echo.
+    echo [안내] 이 폴더에 nfc_renamer.exe가 없습니다.
+    echo README의 g++ 빌드 방법을 참고하여 exe를 만든 뒤 다시 실행하세요.
+    echo.
+    pause
+    exit /b 1
+)
 
-python --version >nul 2>&1
-if not errorlevel 1 goto :have_python
-
-echo.
-echo [안내] Python이 없거나 PATH에 등록되어 있지 않습니다.
-echo 설치 시 "Add python.exe to PATH" 옵션을 반드시 체크하고, 설치 후 이 배치 파일을 다시 실행하세요.
-echo 우클릭 메뉴는 PATH의 pythonw.exe가 필요합니다.
-echo.
-echo 브라우저에서 Python 공식 다운로드 페이지를 엽니다...
-start "" "https://www.python.org/downloads/"
-exit /b 1
-
-:have_python
 if not exist "C:\Scripts\" mkdir "C:\Scripts\"
-copy /Y "%~dp0normalize_nfc.py" "C:\Scripts\" >nul
+copy /Y "%~dp0nfc_renamer.exe" "C:\Scripts\" >nul
 if errorlevel 1 (
     echo.
-    echo [오류] normalize_nfc.py를 C:\Scripts\로 복사하지 못했습니다.
+    echo [오류] nfc_renamer.exe를 C:\Scripts\로 복사하지 못했습니다.
+    pause
+    exit /b 1
+)
+
+if not exist "C:\Scripts\" mkdir "C:\Scripts\"
+copy /Y "%~dp0nfc_renamer.exe" "C:\Scripts\" >nul
+if errorlevel 1 (
+    echo.
+    echo [오류] nfc_renamer.exe를 C:\Scripts\로 복사하지 못했습니다.
     pause
     exit /b 1
 )
