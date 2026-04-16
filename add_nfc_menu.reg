@@ -1,0 +1,30 @@
+﻿Windows Registry Editor Version 5.00
+
+
+
+; 1. 파일 우클릭 메뉴에 추가
+
+[HKEY_CLASSES_ROOT\*\shell\NormalizeNFC]
+
+@="한글자모 분리 수정"
+
+
+
+[HKEY_CLASSES_ROOT\*\shell\NormalizeNFC\command]
+
+@="pythonw.exe \"C:\\Scripts\\normalize_nfc.py\" \"%1\""
+
+
+
+; 2. 폴더 우클릭 메뉴에 추가
+
+[HKEY_CLASSES_ROOT\Directory\shell\NormalizeNFC]
+
+@="한글자모 분리 수정"
+
+
+
+[HKEY_CLASSES_ROOT\Directory\shell\NormalizeNFC\command]
+
+@="pythonw.exe \"C:\\Scripts\\normalize_nfc.py\" \"%1\""
+
