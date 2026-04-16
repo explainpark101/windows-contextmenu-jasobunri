@@ -1,3 +1,12 @@
 @echo off
 setlocal EnableExtensions
-g++ -std=c++17 -municode -mwindows -o ./dist/nfc_renamer.exe ./src/normalize_nfc.cpp -lNormaliz -lole32 -luuid
+set "REPO_ROOT=%~dp0.."
+cd /d "%REPO_ROOT%"
+
+call "%~dp0build-app.bat"
+if errorlevel 1 exit /b 1
+
+call "%~dp0build-installer.bat"
+if errorlevel 1 exit /b 1
+
+exit /b 0
