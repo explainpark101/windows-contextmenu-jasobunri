@@ -17,18 +17,22 @@ exit /b 1
 
 :have_admin
 
+set "INSTALL_DIR=%ProgramData%\JasoBunri"
+set "INSTALL_EXE=%INSTALL_DIR%\nfc_renamer.exe"
+
 reg delete "HKCR\*\shell\NormalizeNFC" /f >nul 2>&1
 reg delete "HKCR\Directory\shell\NormalizeNFC" /f >nul 2>&1
 echo [완료] 레지스트리 메뉴 제거를 시도했습니다. 없던 키는 무시됩니다.
 
-if not exist "C:\Scripts\nfc_renamer.exe" goto :no_copy
-del /f /q "C:\Scripts\nfc_renamer.exe"
-if exist "C:\Scripts\nfc_renamer.exe" goto :del_fail
-echo [완료] C:\Scripts\nfc_renamer.exe 삭제
+if not exist "%INSTALL_EXE%" goto :no_copy
+del /f /q "%INSTALL_EXE%"
+if exist "%INSTALL_EXE%" goto :del_fail
+echo [완료] %INSTALL_EXE% 삭제
+rmdir "%INSTALL_DIR%" >nul 2>&1
 goto :end
 
 :no_copy
-echo [정보] C:\Scripts\nfc_renamer.exe 없음 (이미 삭제되었거나 설치하지 않음)
+echo [정보] %INSTALL_EXE% 없음 (이미 삭제되었거나 설치하지 않음)
 goto :end
 
 :del_fail
