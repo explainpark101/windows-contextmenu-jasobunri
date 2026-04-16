@@ -1,7 +1,7 @@
 [Setup]
 AppId={{D8D9D8F8-C1DF-4B20-A5E0-3EEA0D1772B1}}
 AppName=windows-contextmenu-jasobunri
-AppVersion=1.0.0
+AppVersion=1.0.1
 AppPublisher=jasobunri
 DefaultDirName={commonappdata}\JasoBunri
 DisableProgramGroupPage=yes
