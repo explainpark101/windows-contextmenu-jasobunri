@@ -20,7 +20,7 @@ MinGW-w64 등 **g++**가 설치되어 있어야 하며, `NormalizeString` 함수
 저장소 루트에서 다음을 실행합니다.
 
 ```bat
-g++ -std=c++17 -municode -o nfc_renamer.exe normalize_nfc.cpp -lNormaliz
+g++ -std=c++17 -municode -mwindows -o nfc_renamer.exe normalize_nfc.cpp -lNormaliz -lole32 -luuid
 ```
 
 또는 같은 내용의 `build.bat`을 실행합니다.
