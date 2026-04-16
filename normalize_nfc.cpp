@@ -3,11 +3,15 @@
 #include <vector>
 #include <filesystem>
 #include <windows.h>
+#include <shellapi.h> // CommandLineToArgvW 함수 사용을 위해 추가합니다.
 // NormalizeString 함수 사용을 위해 필요합니다.
 #include <winnls.h>
+// Windows 프로그레스 다이얼로그 사용을 위해 추가합니다.
+#include <shlobj.h>
 
-// MSVC 컴파일러에서 Normaliz.lib를 링크하도록 지시합니다.
+// MSVC 컴파일러를 위한 라이브러리 링크 지시어입니다.
 #pragma comment(lib, "Normaliz.lib")
+#pragma comment(lib, "Ole32.lib")
 
 namespace fs = std::filesystem;
 
@@ -29,15 +33,55 @@ std::wstring normalize_to_nfc(const std::wstring& input) {
     return std::wstring(buffer.data());
 }
 
-// Windows 환경에서 유니코드 경로를 처리하기 위해 일반 main 대신 wmain을 사용합니다.
-int wmain(int argc, wchar_t* argv[]) {
+// 콘솔 창을 띄우지 않기 위해 일반 wmain 대신 Windows GUI 진입점인 wWinMain을 사용합니다.
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
+    int argc;
+    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    if (argv == NULL) {
+        return 0;
+    }
+
+    if (argc < 2) {
+        LocalFree(argv);
+        return 0;
+    }
+
+    int total_files = argc - 1;
+
+    // COM(Component Object Model) 라이브러리를 초기화합니다.
+    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+
+    IProgressDialog *pDialog = NULL;
+    HRESULT hr = CoCreateInstance(CLSID_ProgressDialog, NULL, CLSCTX_INPROC_SERVER, IID_IProgressDialog, (void**)&pDialog);
+
+    if (SUCCEEDED(hr)) {
+        pDialog->SetTitle(L"NFC 파일명 정규화");
+        pDialog->SetLine(1, L"파일 이름을 변환하는 중입니다...", TRUE, NULL);
+        // 프로그레스 바 표시를 시작합니다.
+        pDialog->StartProgressDialog(NULL, NULL, PROGDLG_NORMAL | PROGDLG_AUTOTIME, NULL);
+    }
+
     // Windows 우클릭으로 전달받은 모든 파일/폴더 경로 처리 (argv[0]은 프로그램 자체 경로입니다)
     for (int i = 1; i < argc; ++i) {
+        if (pDialog) {
+            // 사용자가 진행 창에서 '취소'를 눌렀는지 확인합니다.
+            if (pDialog->HasUserCancelled()) {
+                break;
+            }
+            // 현재 진행률을 업데이트합니다.
+            pDialog->SetProgress(i - 1, total_files);
+        }
+
         fs::path filepath(argv[i]);
 
         // 디렉토리 경로와 파일명을 분리합니다.
         fs::path dir_name = filepath.parent_path();
         std::wstring base_name = filepath.filename().wstring();
+
+        if (pDialog) {
+            // 현재 처리 중인 파일명을 프로그레스 바에 표시합니다.
+            pDialog->SetLine(2, base_name.c_str(), TRUE, NULL);
+        }
 
         // 파일명을 NFC(Windows 호환) 방식으로 정규화합니다.
         std::wstring nfc_name = normalize_to_nfc(base_name);
@@ -48,10 +92,21 @@ int wmain(int argc, wchar_t* argv[]) {
             try {
                 fs::rename(filepath, new_filepath);
             } catch (const fs::filesystem_error& e) {
-                // 오류 발생 시 로깅이 필요하다면 여기에 추가할 수 있습니다.
-                // Python의 pass처럼 예외를 무시합니다.
+                // 오류 발생 시 무시합니다.
             }
         }
     }
+
+    // 작업 완료 후 프로그레스 바를 닫고 메모리를 해제합니다.
+    if (pDialog) {
+        pDialog->SetProgress(total_files, total_files);
+        pDialog->StopProgressDialog();
+        pDialog->Release();
+    }
+
+    // COM 라이브러리 사용을 종료합니다.
+    CoUninitialize();
+
+    LocalFree(argv); // 할당된 인자 메모리를 해제합니다.
     return 0;
 }
